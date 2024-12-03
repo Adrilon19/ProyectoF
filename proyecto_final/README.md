@@ -43,7 +43,7 @@ Controla el sistema global de discos.
   - `generar_histogramas()`: Genera histogramas de las velocidades en las direcciones `x` e `y`.
   - `visualizar(pasos, dt)`: Crea una animación que muestra el movimiento de los discos dentro de la caja.
 
----
+
 
 ## **Cómo Funciona**
 
@@ -76,5 +76,5 @@ En cada paso de tiempo (dt):
     Se mueve cada disco con mover(dt).
     Se detectan colisiones con las paredes usando chocar_pared(L).
     Se verifican y resuelven colisiones entre pares de discos usando detectar_colision y resolver_colision.
-
+---
 
