@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import random
+import numpy as np
 from threading import Thread
 
 class Disco:
@@ -19,52 +19,63 @@ class Disco:
         self.y += self.vy * dt
 
     def chocar_pared(self, L):
-        if self.x - self.r < 0 or self.x + self.r > L:
+        margen = 0.001  # Un pequeño margen para evitar colisiones instantáneas
+        if self.x - self.r < margen or self.x + self.r > L - margen:
             self.vx = -self.vx
-        if self.y - self.r < 0 or self.y + self.r > L:
+            self.x = np.clip(self.x, self.r, L - self.r)  # Evitar que el disco se salga de la caja
+        if self.y - self.r < margen or self.y + self.r > L - margen:
             self.vy = -self.vy
+            self.y = np.clip(self.y, self.r, L - self.r)  # Evitar que el disco se salga de la caja
 
     def detectar_colision(self, otro):
         dx = self.x - otro.x
         dy = self.y - otro.y
         distancia = np.sqrt(dx**2 + dy**2)
-        return distancia < 2 * self.r
+        return distancia < (self.r + otro.r) 
 
     def resolver_colision(self, otro):
         dx = self.x - otro.x
         dy = self.y - otro.y
         distancia = np.sqrt(dx**2 + dy**2)
 
-        # Vector unitario de colisión
-        nx = dx / distancia
-        ny = dy / distancia
+        if distancia < (self.r + otro.r):
+           # Vector unitario de colisión
+            nx = dx / distancia
+            ny = dy / distancia
 
-        # Velocidades relativas
-        dvx = self.vx - otro.vx
-        dvy = self.vy - otro.vy
+            # Velocidades relativas
+            dvx = self.vx - otro.vx
+            dvy = self.vy - otro.vy
 
-        # Momento transferido en la dirección normal
-        p = 2 * (dvx * nx + dvy * ny) / 2  # Ambas masas son iguales a 1
+            # Momento transferido en la dirección normal
+            p = 2 * (dvx * nx + dvy * ny) / 2  # Ambas masas son iguales a 1
 
-        # Actualizar velocidades
-        self.vx -= p * nx
-        self.vy -= p * ny
-        otro.vx += p * nx
-        otro.vy += p * ny
+            # Actualizar velocidades
+            self.vx -= p * nx
+            self.vy -= p * ny
+            otro.vx += p * nx
+            otro.vy += p * ny
 
+           # Separar discos ligeramente para evitar colisiones múltiples
+            overlap = (self.r + otro.r) - distancia
+            separation = overlap / 2
+            self.x += nx * separation
+            self.y += ny * separation
+            otro.x -= nx * separation
+            otro.y -= ny * separation
 class Simulacion:
-    def __init__(self, L, N, r):
+    def __init__(self, L, N, r_min=0.05, r_max=0.1):
         self.L = L
-        self.r = r
         self.discos = []
         self.colores = ["red", "blue", "green", "orange", "purple", "cyan", "magenta", "yellow", "brown", "pink"]
 
         for _ in range(N):
             while True:
-                x = np.random.uniform(r, L - r)
-                y = np.random.uniform(r, L - r)
-                vx = np.random.uniform(-1, 1)
-                vy = np.random.uniform(-1, 1)
+                x = np.random.uniform(r_min, L - r_min)
+                y = np.random.uniform(r_min, L - r_min)
+                vx = np.random.uniform(-2.5, 2.5)
+                vy = np.random.uniform(-2.5, 2.5)
+                r = np.random.uniform(r_min, r_max)
                 color = random.choice(self.colores)
 
                 nuevo_disco = Disco(x, y, vx, vy, r, color)
@@ -73,13 +84,11 @@ class Simulacion:
                     break
 
     def avanzar(self, dt):
-        # Mover los discos y manejar colisiones con las paredes
         for disco in self.discos:
             disco.mover(dt)
             disco.chocar_pared(self.L)
 
-        # Paralelizar la detección y resolución de colisiones entre discos
-        num_hilos = 4
+        num_hilos = 8
         tamano_bloque = len(self.discos) // num_hilos
         hilos = []
 
@@ -99,7 +108,7 @@ class Simulacion:
                 if self.discos[i].detectar_colision(self.discos[j]):
                     self.discos[i].resolver_colision(self.discos[j])
 
-    def generar_histogramas(self):
+    def generar_histogramas(self, output_path="histogramas12.png"):
         velocidades_x = [disco.vx for disco in self.discos]
         velocidades_y = [disco.vy for disco in self.discos]
 
@@ -116,9 +125,10 @@ class Simulacion:
         axs[1].set_title("Histograma de velocidades en y")
 
         plt.tight_layout()
+        plt.savefig(output_path)  # Guardar la imagen de los histogramas
         plt.show()
 
-    def visualizar(self, pasos, dt):
+    def visualizar(self, pasos, dt, output_path="animacion12.mp4"):
         fig, ax = plt.subplots()
         ax.set_xlim(0, self.L)
         ax.set_ylim(0, self.L)
@@ -133,14 +143,22 @@ class Simulacion:
             return circulos
 
         anim = FuncAnimation(fig, actualizar, frames=pasos, blit=True, interval=50)
+        anim.save(output_path, fps=30, extra_args=['-vcodec', 'libx264'])  # Guardar la animación como archivo de video
+        print(f"Animación guardada en {output_path}")
         plt.show()
 
 if __name__ == "__main__":
-    L = 4.0  # Tamaño de la caja
-    N = 50   # Número de discos
-    r = 0.05 # Radio de los discos
+    L = 3  # Tamaño de la caja ajustado
+    N = 50  # Número moderado de discos
+    sim = Simulacion(L, N)
 
-    sim = Simulacion(L, N, r)
-    sim.visualizar(pasos=500, dt=0.01)
-    sim.generar_histogramas()
+    # Generar animación
+    print("Generando animación...")
+    sim.visualizar(pasos=500, dt=0.01, output_path="animacion12.mp4")
+    print("Animación generada y guardada como 'animacion11.mp4'")
+
+    # Generar histogramas
+    print("Generando histogramas...")
+    sim.generar_histogramas(output_path="histogramas12.png")
+    print("Histogramas generados y guardados como 'histogramas11.png'")
 
