@@ -108,27 +108,27 @@ class Simulacion:
                 if self.discos[i].detectar_colision(self.discos[j]):
                     self.discos[i].resolver_colision(self.discos[j])
 
-    def generar_histogramas(self, output_path="histogramas12.png"):
-        velocidades_x = [disco.vx for disco in self.discos]
-        velocidades_y = [disco.vy for disco in self.discos]
+    def generar_histogramas(self, output_path="histogramas13.png"):
+        posiciones_x = [disco.x for disco in self.discos]
+        posiciones_y = [disco.y for disco in self.discos]
 
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
 
-        axs[0].hist(velocidades_x, bins=20, alpha=0.7, color='blue', edgecolor='black')
-        axs[0].set_xlabel("Velocidad en x")
+        axs[0].hist(posiciones_x, bins=20, alpha=0.7, color='blue', edgecolor='black')
+        axs[0].set_xlabel("Posicion en x")
         axs[0].set_ylabel("Frecuencia")
-        axs[0].set_title("Histograma de velocidades en x")
+        axs[0].set_title("Histograma de posiciones en x")
 
-        axs[1].hist(velocidades_y, bins=20, alpha=0.7, color='green', edgecolor='black')
-        axs[1].set_xlabel("Velocidad en y")
+        axs[1].hist(posiciones_y, bins=20, alpha=0.7, color='green', edgecolor='black')
+        axs[1].set_xlabel("Posicion en y")
         axs[1].set_ylabel("Frecuencia")
-        axs[1].set_title("Histograma de velocidades en y")
+        axs[1].set_title("Histograma de posiciones en y")
 
         plt.tight_layout()
         plt.savefig(output_path)  # Guardar la imagen de los histogramas
         plt.show()
 
-    def visualizar(self, pasos, dt, output_path="animacion12.mp4"):
+    def visualizar(self, pasos, dt, output_path="animacion13.mp4"):
         fig, ax = plt.subplots()
         ax.set_xlim(0, self.L)
         ax.set_ylim(0, self.L)
@@ -154,11 +154,11 @@ if __name__ == "__main__":
 
     # Generar animación
     print("Generando animación...")
-    sim.visualizar(pasos=500, dt=0.01, output_path="animacion12.mp4")
-    print("Animación generada y guardada como 'animacion11.mp4'")
+    sim.visualizar(pasos=500, dt=0.01, output_path="animacion13.mp4")
+    print("Animación generada y guardada como 'animacion13.mp4'")
 
     # Generar histogramas
     print("Generando histogramas...")
-    sim.generar_histogramas(output_path="histogramas12.png")
-    print("Histogramas generados y guardados como 'histogramas11.png'")
+    sim.generar_histogramas(output_path="histogramas13.png")
+    print("Histogramas generados y guardados como 'histogramas13.png'")
 

@@ -64,9 +64,9 @@ La clase `Simulacion` gestiona el movimiento de todos los discos y la visualizac
   Detecta y resuelve colisiones entre los discos dentro de un rango de índices (`inicio`, `fin`).
 
 - **`generar_histogramas(output_path)`**:
-  Genera histogramas de las velocidades en \(x\) e \(y\) de los discos y los guarda como una imagen.
+  Genera histogramas de las posiciones en \(x\) e \(y\) de los discos y los guarda como una imagen.
   ```python
-  axs[0].hist(velocidades_x, bins=20, alpha=0.7, color='blue', edgecolor='black')
+  axs[0].hist(posiciones_x, bins=20, alpha=0.7, color='blue', edgecolor='black')
   ```
 
 - **`visualizar(pasos, dt, output_path)`**:
@@ -119,7 +119,7 @@ python3 simulacion_DM.py
 
 ## **Archivos generados**
 - **`animacion9.mp4`**: Video que muestra el movimiento de los discos.
-- **`histogramas9.png`**: Histogramas de las velocidades en \(x\) e \(y\).
+- **`histogramas9.png`**: Histogramas de las posiciones  en \(x\) e \(y\).
 
 ---
 
